@@ -103,6 +103,8 @@ function mobkit_custom.on_punch(self, puncher, lastpunch, toolcaps, dir)
 	if toolcaps.damage_groups then
 		local damage = 1
 		-- mobs don't have metadata but may define a strength property
+		-- TODO This feels like a slightly dangerous habit to start (Using playerrefs/luaents interchangeably), eventually this should probably get 
+		-- swapped out for a core.is_player() check, and an is_npc check or something depending on if we'd want all mobs to have a strength stat, or just npcs
 		if puncher.strength then
 			damage = math.ceil(puncher.strength/2)
 		elseif puncher:get_meta() then
