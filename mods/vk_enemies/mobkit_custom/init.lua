@@ -31,7 +31,7 @@ end
 local old_mobkit_actfunc = mobkit.actfunc
 function mobkit.actfunc(self, staticdata, dtime_s)
 	old_mobkit_actfunc(self, staticdata, dtime_s)
-	
+
 	mobkit_custom.ensure_id(self)
 end
 
@@ -103,7 +103,7 @@ function mobkit_custom.on_punch(self, puncher, lastpunch, toolcaps, dir)
 	if toolcaps.damage_groups then
 		local damage = 1
 		-- mobs don't have metadata but may define a strength property
-		-- TODO This feels like a slightly dangerous habit to start (Using playerrefs/luaents interchangeably), eventually this should probably get 
+		-- TODO This feels like a slightly dangerous habit to start (Using playerrefs/luaents interchangeably), eventually this should probably get
 		-- swapped out for a core.is_player() check, and an is_npc check or something depending on if we'd want all mobs to have a strength stat, or just npcs
 		if puncher.strength then
 			damage = math.ceil(puncher.strength/2)
@@ -157,7 +157,7 @@ function mobkit.get_nearby_enemy(self)	-- returns random nearby hostile entity o
 			else
 				obj = thing
 			end
-	
+
 			if obj.memory then
 				minetest.log("info", "mobkit get_nearby_enemy obj.memory: " .. dump(obj.memory))
 				hostility = mobkit.recall(obj, "hostility")

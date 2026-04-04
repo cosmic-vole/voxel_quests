@@ -117,7 +117,6 @@ function vk_npcs.select_talk_lines(pname, pcontext, convo_content, playertalk, n
 			-- This condition happened once when telling the follower to stop following me, but cannot yet reproduce so log it and skip:
 			minetest.log("info", ("Error unexpected talk data: '%s' in convo content: '%s'. type(talk): '%s'."):format(dump(talk or "?"), dump(convo_content or "?"), (type(talk) or "?")))
 		else
-			local canshowtext = true
 			local condfunc = talk.condition
 			if vk_npcs.evaluate_condition(pname, pcontext, condfunc) then
 				if talk.who == PLAYER then
@@ -128,8 +127,6 @@ function vk_npcs.select_talk_lines(pname, pcontext, convo_content, playertalk, n
 					table.insert(npctalk, talk)
 				end
 			end
-			--if line then markup = markup .. "\"" .. minetest.formspec_escape(line) ..  "\"\n" end
-			--if line then markup = markup .. ("<action name=\"%d\">"):format(lines) .. minetest.formspec_escape(line) ..  "</action>\n" end
 		end
 	end
 	return lines
@@ -138,7 +135,6 @@ end
 function vk_quests.show_npc_form(pname, pcontext)
 	local temp
 	local npcname = pcontext.npcdef.npcname
-	local npcself = pcontext.npcself
 --	local formspec = ([[
 --		size[8,6]
 --		real_coordinates[true]
@@ -161,7 +157,7 @@ function vk_quests.show_npc_form(pname, pcontext)
 	end
 
 	local convos = ""
-	local convo_cname = ""
+	-- Not used, yet: local convo_cname = ""
 	local convo_content
 	temp = 0 -- tab number
 	for cname, content in pairs(pcontext.npcdef.convos) do
@@ -170,7 +166,7 @@ function vk_quests.show_npc_form(pname, pcontext)
 		-- Save the content of the currently selected convo for later use
 		if temp == pcontext.tab then
 			convo_content = content
-			convo_cname = cname
+			-- Not used, yet: convo_cname = cname
 		end
 
 		convos = convos .. cname .. ","
@@ -224,13 +220,12 @@ function vk_quests.show_npc_form(pname, pcontext)
 	elseif pcontext.npcdef.convos.Talk or pcontext.npcdef.convos.Rumors then --and convo_cname == "Talk" then
 		local markup =  "hypertext[0,2.2;12,4;talk;"
 		local firsttalk = nil
-		local firsttalkindex = 0
-		local firsttalkrand = 0
+		local firsttalkindex
+		local firsttalkrand
 		local playertalk = {}
 		local npctalk = {}
-		local lines = 0
-		local playerfirst = false -- true if the player says first line of the conversation else the npc does.
-		
+		--local playerfirst = false -- true if the player says first line of the conversation else the npc does.
+
 		--See if we are continuing an existing conversation
 		if pcontext.nexttalk ~= nil then
 			convo_content = pcontext.nexttalk -- TODO if it is empty they should say "I have nothing to say" maybe.
@@ -243,14 +238,14 @@ function vk_quests.show_npc_form(pname, pcontext)
 		-- So, say the npc says something and the player chooses a reply, then the form should reopen with players chosen reply at the top
 		-- and any further response from the NPC underneath. For longer conversations any further player responses would be underneath.
 		-- Or actually better not to repost the previous line of dialogue and only show the new one.
-		lines = vk_npcs.select_talk_lines(pname, pcontext, convo_content, playertalk, npctalk)
+		vk_npcs.select_talk_lines(pname, pcontext, convo_content, playertalk, npctalk)
 
 		-- If both the player and the NPC have lines that could start a conversation, we currently choose who starts at random
 		-- although this approach has drawbacks if it could cause the player to miss quest dialog, so careful consideration needs
 		-- to be given to how the conversations are designed and the conditions attached to them.
 		-- The ideal conversation system would stop the NPC repeating old conversations at least for a certain period of time.
 		if #npctalk > 0 and (#playertalk < 1 or math.random(1, 2) == 1) then
-			playerfirst = false
+			--playerfirst = false
 			firsttalkindex = math.random(1, #npctalk)
 			firsttalkrand = math.random(1, #(npctalk[firsttalkindex].line))
 			local line = npctalk[firsttalkindex].line[firsttalkrand]
@@ -272,7 +267,7 @@ function vk_quests.show_npc_form(pname, pcontext)
 					players.set_gold(player, pgold)
 					-- !!!! TODO add it to npc gold
 				end
-				
+
 				local action = npctalk[firsttalkindex].action
 				local npcself = pcontext.npcself
 				if npcself ~= nil then
@@ -294,9 +289,8 @@ function vk_quests.show_npc_form(pname, pcontext)
 						mobkit.remember(npcself, "standddown", 300)
 					end
 				end
-				
 			end
-			
+
 			-- Read player responses from child talk object
 			local nexttalk = npctalk[firsttalkindex].talk
 			if nexttalk and #nexttalk > 0 then
@@ -311,13 +305,12 @@ function vk_quests.show_npc_form(pname, pcontext)
 					markup = markup:sub(1, -2) -- Remove trailing comma
 					markup = markup .. "]"
 				end
-				
 			end
-			
+
 		elseif #playertalk > 0 then
 			markup = "textlist[0,3.5;12,2.5;talk;"
 			for pindex, ptalk in pairs(playertalk) do
-				line = ptalk.line[math.random(1, #(ptalk.line))]
+				local line = ptalk.line[math.random(1, #(ptalk.line))]
 				markup = markup .. minetest.formspec_escape(line) .. ","
 			end
 			markup = markup:sub(1, -2) -- Remove trailing comma
@@ -325,7 +318,7 @@ function vk_quests.show_npc_form(pname, pcontext)
 		end
 		pcontext.playertalk = playertalk
 
-		formspec = formspec .. markup .. "]" 
+		formspec = formspec .. markup .. "]"
 	else
 		formspec = formspec .. "label[0,2.4;\"I don't have anything to say.\"]"
 	end
@@ -365,7 +358,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			update_form = true
 		end
 	end
-	
+
 	if fields.talk then
 	  -- Handle conversation replies
 	  local event = minetest.explode_textlist_event(fields.talk)
@@ -408,10 +401,10 @@ register_npc("guard", {
 			{ 	who = NPC,
 				line = {"I hear there might be something up with the tavern keeper's drinks."},
 				talk = {
-						{who = PLAYER, line = {"Really? Whatever do you mean?"}, talk = 
+						{who = PLAYER, line = {"Really? Whatever do you mean?"}, talk =
 							{who = NPC, line = {"This guy told me she takes your money but then there are no drinks to be seen."}, talk =
 								{
-									{who = PLAYER, line = {"That can't be right. I bought a drink from her", "Sounds weird."}, talk =
+									{who = PLAYER, line = {"That can't be right. I bought a drink from her.", "Sounds weird."}, talk =
 										{who = NPC, line = {"They must be invisible drinks then! Yeah, that'll be it. Sorcery!"}}}}
 								}
 						},

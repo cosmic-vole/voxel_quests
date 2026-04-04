@@ -42,7 +42,7 @@ minetest.register_lbm({
 	end,
 })
 
---TODO If we add any more args to this we should maybe collapse all the misc args into a table, making the function 
+--TODO If we add any more args to this we should maybe collapse all the misc args into a table, making the function
 -- get called similar to minetest.register_node(), which you can see has 2 args, a string and table
 function spawners.register_overworld_spawner(entity, enemies_per_spawner, biomes, func, fill_ratio)
 	minetest.register_node(entity .. "_overworld_spawner", {

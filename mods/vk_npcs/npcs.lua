@@ -89,10 +89,10 @@ local function tavern_keeper_step(tavern_keeper)
 end
 
 local ROAM = 0
-local WAIT = 1
+--local WAIT = 1
 --local AMBUSH = 2
 local FOLLOW = 2
-local GOTO_COVER = 3
+--local GOTO_COVER = 3
 local ATTACK = 4
 
 local function register_npcmob(name, def)
@@ -148,7 +148,7 @@ local function register_npcmob(name, def)
 
 		local obj = self.object
 		local pos = obj:get_pos()
-		
+
 		if (not self.spawned) then
 			self.initial_spawn_pos = pos
 			self.spawned = true
@@ -177,7 +177,7 @@ local function register_npcmob(name, def)
 			local nearby_enemy = mobkit.get_nearby_enemy(self)
 			local standdown = mobkit.recall(self, "standddown")
 			local follow_player = nil
-			
+
 			if not nearby_enemy then
 				-- Last enemy we hunted is remembered in mobkit custom hunt function
 				local nearby_enemy_id = mobkit.recall(self, "lastenemy")
@@ -195,17 +195,17 @@ local function register_npcmob(name, def)
 			if followpname ~= nil then
 				local tohunt = false
 				follow_player = core.get_player_by_name(followpname)
-				
+
 				--mobkit.remember(self, "waiting", false)
-				
+
 				-- Only start attacking an enemy when our player is nearby
 				if nearby_enemy and follow_player and vector.distance(follow_player:getpos(), pos) <= 20 then
 					-- Were we ordered to stand down?
 					if not standdown or standdown < 1 then
 						tohunt = true
 						-- minetest.log("info", ("npcmob nearby enemy '%s' type: %s"):format(dump(nearby_enemy:get_meta()), type(nearby_enemy))) -- :get_meta():get_int("strength")
-						
-						if nearby_enemy.object then 
+
+						if nearby_enemy.object then
 							minetest.log("info", ("npcmob nearby enemy at '%s' type: %s"):format(dump(nearby_enemy.object:get_pos()), type(nearby_enemy))) -- :get_meta():get_int("strength")
 							minetest.log("action", ("npcmob is attacking nearby enemy '%s'"):format(nearby_enemy.object.name or "?"))
 						else
@@ -220,14 +220,14 @@ local function register_npcmob(name, def)
 						--	mobkit.remember(self, "lastenemy", nearby_enemy)
 					end
 				end
-				
+
 				if not tohunt then
 					minetest.log("action", "npcmob is following player") --'%s'"):format(followpname)
 					mobkit.hq_follow(self, FOLLOW, follow_player)
 					--mobkit_custom.hq_follow(self, FOLLOW, follow_player)
 				end
 			end
-			
+
 			if nearby_player and priority < ATTACK and mobkit.recall(self, "ambushing") ~= true and -- Not attacking/ambushing
 			vector.distance(nearby_player:getpos(), pos) <= 10 then -- Not attacking nearby player
 				if self.hostility > 0 then mobkit.hq_hunt(self, ATTACK, nearby_player) end
@@ -253,10 +253,10 @@ local function register_npcmob(name, def)
 			--elseif priority ~= AMBUSH and minetest.get_node(pos).name == "spider:spider_cover" then
 			--	ambush(self, AMBUSH)
 			--end
-			
+
 			if standdown and standdown > 0 then mobkit.remember(self, "standddown", standdown - 1) end -- BUG? why npcself? mobkit.remember(npcself, "standddown", standdown - 1) end
 --[[
-			
+
 			-- TODO Only run anim code every 0.1 seconds
 			--  self.timer = (self.timer or 0) + dtime
 			--  if self.timer < 0.1 then return else self.timer = 0 end
@@ -385,13 +385,13 @@ local anims = {
 					quest = 1,
 					npcself = self
 				}
-				if def.convos then minetest.log("info", ("debug convos: '%s'"):format(dump(def.convos))) 
+				if def.convos then minetest.log("info", ("debug convos: '%s'"):format(dump(def.convos)))
 				else minetest.log("info", ("missing convos in def: '%s'"):format(dump(def)))
 				end
 			else context[pname].npcself = self
 			end
-			
-			if def.convos then minetest.log("action", ("debug convos: '%s'"):format(dump(def.convos))) 
+
+			if def.convos then minetest.log("action", ("debug convos: '%s'"):format(dump(def.convos)))
 			else minetest.log("action", ("missing convos in def: '%s'"):format(dump(def))) end
 
 			vk_quests.show_npc_form(pname, context[pname])
@@ -502,4 +502,4 @@ minetest.register_lbm({
 		end
 	end
 })
-minetest.log("info", "lbm function registered for tavern marker") 
+minetest.log("info", "lbm function registered for tavern marker")
