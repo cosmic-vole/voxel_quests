@@ -135,10 +135,14 @@ function mapgen.populate_structure(schemname, structurepos, radius)
 			minetest.remove_node(pos)
 			minetest.remove_node( {x = pos.x, y = (pos.y + 1), z = pos.z} )
 			minetest.set_node( {x = pos.x, y = pos.y + 4, z = pos.z}, { name = "vk_npcs:tavern_marker" })
-			-- Add her back as an npcmob that can walk around
-			minetest.add_entity({x = pos.x, y = (pos.y + 1), z = pos.z}, "vk_npcs:tavern_keeper")
+
 			-- !!! TEST TEST TEST TODO DELETE THIS !!!
 			minetest.add_entity({x = pos.x, y = (pos.y + 1), z = pos.z - 42}, "vk_mapgen:cantilever")
+
+			-- Add her back as an npcmob that can walk around, but stands still initially
+			local staticdata = {waiting = true, npcname = "tavern_keeper"}
+			minetest.add_entity({x = pos.x, y = (pos.y + 1), z = pos.z}, "vk_npcs:tavern_keeper", minetest.serialize(staticdata))
+
 			return 1
 		end
 	end

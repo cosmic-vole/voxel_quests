@@ -31,13 +31,11 @@ end
 local old_mobkit_actfunc = mobkit.actfunc
 function mobkit.actfunc(self, staticdata, dtime_s)
 	old_mobkit_actfunc(self, staticdata, dtime_s)
-	
+
 	mobkit_custom.ensure_id(self)
 end
 
 function mobkit_custom.deactfunc(self)
--- TODO make a register mob function that calls register_entity() and ensures
--- this code is run in on_deactivate() and that the ID is stored on activate.
 	if self.id then
 		mobkit_custom.mobs[self.id] = nil
 		-- TODO If we find we need to retain data about deactivated mobs
@@ -105,6 +103,8 @@ function mobkit_custom.on_punch(self, puncher, lastpunch, toolcaps, dir)
 	if toolcaps.damage_groups then
 		local damage = 1
 		-- mobs don't have metadata but may define a strength property
+		-- TODO This feels like a slightly dangerous habit to start (Using playerrefs/luaents interchangeably), eventually this should probably get
+		-- swapped out for a core.is_player() check, and an is_npc check or something depending on if we'd want all mobs to have a strength stat, or just npcs
 		if puncher.strength then
 			damage = math.ceil(puncher.strength/2)
 		elseif puncher:get_meta() then
@@ -157,10 +157,9 @@ function mobkit.get_nearby_enemy(self)	-- returns random nearby hostile entity o
 			else
 				obj = thing
 			end
-	
+
 			if obj.memory then
 				minetest.log("info", "mobkit get_nearby_enemy obj.memory: " .. dump(obj.memory))
-				-- !!! TODO / BUG !!! ?????????? losing track of whether these should use obj or obj.object ?????????
 				hostility = mobkit.recall(obj, "hostility")
 				targetid = mobkit.recall(obj, "lastenemy")
 				-- if targetid then
@@ -179,13 +178,11 @@ function mobkit.get_nearby_enemy(self)	-- returns random nearby hostile entity o
 			-- If our custom mobkit.hq_hunt was called for that mob, we consider them an enemy
 			if targetid ~= nil then
 				minetest.log("info", ("mobkit get_nearby_enemy found a target for obj: '%s'"):format(obj.name or "?"))
-				-- if type(obj) == "table" then return obj.object end
 				return obj.object
 			end
 
 		end
 	end
-	-- if type(candidate) == "table" then return candidate.object end
 	if not candidate then return nil end
 	return candidate.object
 end
